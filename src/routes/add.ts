@@ -4,7 +4,7 @@ const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/
 
 import validator, { escape, isEmpty, isEmail } from 'validator';
 import { inputValidationConfig } from '../lib/validatorContext';
-// import app, {serviceAccount} from '../lib/firebase-server';
+import app from '../lib/firebase-server';
 import sendMail from '../lib/send-mail';
 export const config = {
   runtime: 'nodejs',
@@ -20,15 +20,9 @@ interface Message {
   user: string
 }
 
-const serviceAccount = "/Users/richard/Applications/R_GIT/Richard-hotline-server/src/credentials/richardhotline-7e1d2-firebase-adminsdk-u6rem-ec3bcb2d85.json"
-const app = initializeApp({
-  credential: cert(serviceAccount)
-});
-
 export default async function add_message(messageObject: Message) {
   // console.log(serviceAccount)
   const db = getFirestore(app);
-  
   const { name, email, message, images, user }: Message = messageObject;
   const { maxLength } = inputValidationConfig;
 
@@ -49,7 +43,11 @@ export default async function add_message(messageObject: Message) {
     if (images.length > maxLength.images) throw new Error(`You can't send more than ${maxLength.images} images.`);
   } catch (error) {
     console.error({ error });
-    return error
+    return {
+      success: false,
+      code: 402,
+      error: error
+    }
   }
 
   try {
@@ -61,15 +59,18 @@ export default async function add_message(messageObject: Message) {
       email: escape(email),
       message: escape(message),
       images: images,
-      timestamp: Timestamp,
-      printed: false,
-      user: user
+      timestamp: Timestamp.now(),
+      printed: false
     };
     const resp = await db.collection('Users').doc(user).collection('messages').add(post);
-    
-    return { success: true, message: resp };
+    console.log(resp.id)
+    return { success: true, id: resp.id };
   } catch (error) {
     console.error(error);
-    return error;
+    return {
+      success: false,
+      code: 500,
+      error: error
+    };
   }
 }
