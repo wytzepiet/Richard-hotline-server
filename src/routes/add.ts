@@ -1,33 +1,36 @@
 import { Request, Response } from 'express';
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 
 import validator, { escape, isEmpty, isEmail } from 'validator';
-import { inputValidationConfig } from '../src/lib/validatorContext';
-import app from '../lib/firebase-server';
+import { inputValidationConfig } from '../lib/validatorContext';
+// import app, {serviceAccount} from '../lib/firebase-server';
 import sendMail from '../lib/send-mail';
-
-import { MessageData } from '@/lib/types';
-
 export const config = {
   runtime: 'nodejs',
 };
 
 const key = process.env.DB_KEY;
 
-export default async function handler(request: Request, response: Response) {
+interface Message {
+  name: string,
+  email: string,
+  message: string,
+  images: string[],
+  user: string
+}
 
-  response.setHeader('Access-Control-Allow-Origin', '*');
-  response.setHeader('Access-Control-Allow-Methods', '*');
-  response.setHeader('Access-Control-Max-Age', '2592000'); // 30 days
+const serviceAccount = "/Users/richard/Applications/R_GIT/Richard-hotline-server/src/credentials/richardhotline-7e1d2-firebase-adminsdk-u6rem-ec3bcb2d85.json"
+const app = initializeApp({
+  credential: cert(serviceAccount)
+});
 
+export default async function add_message(messageObject: Message) {
+  // console.log(serviceAccount)
   const db = getFirestore(app);
-
-  const { name, email, message, images }: MessageData = request.body;
-  const { maxLength } = inputValidationConfig;
   
-  if (request.method !== 'POST') {
-    return response.status(405).json({ status: 'failed', error: 'Method not allowed' });
-  }
+  const { name, email, message, images, user }: Message = messageObject;
+  const { maxLength } = inputValidationConfig;
 
   try {
     [name, email, message].forEach((value: string) => {
@@ -46,15 +49,12 @@ export default async function handler(request: Request, response: Response) {
     if (images.length > maxLength.images) throw new Error(`You can't send more than ${maxLength.images} images.`);
   } catch (error) {
     console.error({ error });
-    return response.status(400).json({
-      status: 'failed',
-      message: error.message
-    });
+    return error
   }
 
   try {
-    if (!key) {
-      throw new Error('Database authentication key not provided.');
+    if (!user) {
+      throw new Error('User id not provided.');
     }
     const post = {
       name: escape(name),
@@ -63,16 +63,13 @@ export default async function handler(request: Request, response: Response) {
       images: images,
       timestamp: Timestamp,
       printed: false,
-      auth: key
+      user: user
     };
-    const resp: FirebaseResponse = await addDoc(collection(db, "messages"), post);
+    const resp = await db.collection('Users').doc(user).collection('messages').add(post);
     
-    return response.status(200).json({ success: true, message: resp._key });
+    return { success: true, message: resp };
   } catch (error) {
     console.error(error);
-    return response.status(500).json({
-      status: 'failed',
-      message: error.message
-    });
+    return error;
   }
 }

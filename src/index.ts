@@ -1,5 +1,6 @@
 import express, { Express, Request, Response , Application } from 'express';
 import dotenv from 'dotenv';
+import add from './routes/add';
 
 //For env File 
 dotenv.config();
@@ -12,7 +13,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.post('/add', (req: Request, res: Response) => {
-  res.send('Add message');
+  const resp = add(req.body)
+  res.send(resp);
 });
 
 app.put('/confirm', (req: Request, res: Response) => {

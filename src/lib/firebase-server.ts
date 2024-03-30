@@ -1,6 +1,6 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 
-var serviceAccount = {
+export const serviceAccount = {
   type:  process.env.FIREBASE_ADMIN_TYPE,
   project_id:  process.env.FIREBASE_ADMIN_PROJECT_ID,
   private_key_id:  process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
@@ -17,8 +17,6 @@ var serviceAccount = {
 const app = initializeApp({
   credential: cert(serviceAccount)
 });
-
-console.log(app);
 
 export default app
 
