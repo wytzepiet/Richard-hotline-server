@@ -8,6 +8,7 @@ import { rateLimit } from 'express-rate-limit'
 // Route logic
 import add from './routes/add';
 import confirm, {ConfirmRequest, ConfirmResponse} from './routes/confirm'
+import { getUserInfo, setUserInfo, UserInfoUpdate } from './routes/userInfo';
 
 //For env File 
 dotenv.config();
@@ -73,15 +74,28 @@ app.put('/confirm', async (req: Request, res: Response) => {
   }
 });
 
-// See if a printer is online
-app.get('/printer-status', (req: Request, res: Response) => {
-  
-  res.send('Update printer status');
+// Get user data
+// This includes the status of the printer
+app.get('/user', async (req: Request, res: Response) => {
+  try {
+    const {user, filter}:{user:string, filter?: string[]} = req.body;
+    const resp = await getUserInfo(user, filter);
+    res.send(resp)
+  } catch(err) {
+    res.status(500).send(err)
+  }
 });
 
-// Set of printer is online
-app.put('/printer-status', (req: Request, res: Response) => {
-  res.send('Update printer status');
+// Update user data
+// This includes the status of the printer
+app.put('/user', async (req: Request, res: Response) => {
+  try {
+    const {user, data}:{user:string, data: UserInfoUpdate} = req.body;
+    const resp = await setUserInfo(user, data);
+    res.send(resp)
+  } catch(err) {
+    res.status(500).send(err)
+  }
 });
 
 // Upload assets to CDN and return links to resources
