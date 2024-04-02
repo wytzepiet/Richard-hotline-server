@@ -35,7 +35,7 @@ const getToken = async () => {
   }
 }
 
-const sendMail = async (mail) => {
+const sendMail = async (mail:any) => {
   const api = 'https://api.sendpulse.com/smtp/emails';
   const {access_token} = await getToken();
   const email = 'hotline@therichard.space'
@@ -67,11 +67,11 @@ const sendMail = async (mail) => {
       success: true,
       message: await resp.json()
     }
-  } catch (err) {
-      console.log(err.message)
+  } catch (err:unknown) {
+      console.log(err)
       return {
         success: false,
-        message: err.message
+        message: err
       }
   }
 }
