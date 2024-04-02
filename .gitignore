@@ -5,11 +5,13 @@
 /.pnp
 .pnp.js
 
+
 # testing
 /coverage
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -24,5 +26,8 @@ yarn-error.log*
 .vercel
 
 # Firebase
-*.log
+firebase-debug.log
+firestore-debug.log
+pubsub-debug.log
+ui-debug.log
 /credentials/*
