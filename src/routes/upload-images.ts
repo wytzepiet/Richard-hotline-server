@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from 'cloudinary';
 import multer from 'multer';
+import { userExists } from '../lib/firebase-server';
 import path from 'path';
 const DatauriParser = require('datauri/parser');
 
@@ -16,7 +17,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true 
 });
-
 
 
 const isValid = (data:{http_code: number}) => {
@@ -52,7 +52,7 @@ const uploadImages = async (user:string, path?:string, files:any) => {
 
   try {
     const uploadedImages = [];
-    if(!user) {
+    if(!user || !userExists(user)) {
       throw 'user is undefined.'
     }
     for (const file of files as Express.Multer.File[]) {

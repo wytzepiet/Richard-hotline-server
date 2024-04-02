@@ -3,7 +3,7 @@ const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/
 
 import validator, { escape, isEmpty, isEmail } from 'validator';
 import { inputValidationConfig } from '../lib/validatorContext';
-import app, {db} from '../lib/firebase-server';
+import app, {db, userExists} from '../lib/firebase-server';
 import sendMail from '../lib/send-mail';
 export const config = {
   runtime: 'nodejs',
@@ -48,8 +48,8 @@ export default async function add_message(messageObject: Message) {
   }
 
   try {
-    if (!user) {
-      throw new Error('User id not provided.');
+    if (!user || !userExists(user)) {
+      throw new Error('Valid user not provided.');
     }
     const post = {
       name: escape(name),
@@ -60,7 +60,7 @@ export default async function add_message(messageObject: Message) {
       printed: false
     };
     console.log(post)
-    const resp = await db.collection('Users').doc(user).collection('messages').add(post);
+    const resp = await db.collection('users').doc(user).collection('messages').add(post);
     console.log(resp.id)
     return { success: true, id: resp.id };
   } catch (error) {

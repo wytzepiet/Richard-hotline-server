@@ -18,7 +18,7 @@ export interface UserInfoUpdate {
 
 export const getUserInfo = async (user: string, filter?: string[]):Promise<UserInfoUpdate> => {
   try {
-    const userRef = db.collection('Users').doc(user);
+    const userRef = db.collection('users').doc(user);
     const doc = await userRef.get();
     if (!doc.exists) {
       throw 'No such document!';
@@ -35,7 +35,7 @@ export const getUserInfo = async (user: string, filter?: string[]):Promise<UserI
 
 export const setUserInfo = async (user: string, data: UserInfoUpdate):Promise<StatusResponse> => {
   try {
-    const userRef = db.collection('Users').doc(user);
+    const userRef = db.collection('users').doc(user);
     const doc = await userRef.get();
     if(doc.exists) {
       // Data sanitation

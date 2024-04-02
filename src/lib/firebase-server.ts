@@ -8,5 +8,11 @@ const app = initializeApp({
 
 export const db = getFirestore(app);
 
+export const userExists = async (user:string) => {
+  const userRef = db.collection('users').doc(user);
+  const doc = await userRef.get();
+  return doc.exists
+}
+
 export default app
 
