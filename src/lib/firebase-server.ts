@@ -1,9 +1,17 @@
-const { initializeApp, cert } = require('firebase-admin/app');
+import { initializeApp, cert } from 'firebase-admin/app';
 const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+import * as openpgp from 'openpgp';
+import dotenv from 'dotenv';
 
-const serviceAccount = "/Users/richard/Applications/R_GIT/Richard-hotline-server/src/credentials/richardhotline-7e1d2-firebase-adminsdk-u6rem-ec3bcb2d85.json"
+//For env File 
+dotenv.config();
+
+const serviceAccountKey = JSON.parse(
+  process.env.FIREBASE_ACCOUNT_KEY as string
+);
+
 const app = initializeApp({
-  credential: cert(serviceAccount)
+    credential: cert(serviceAccountKey)
 });
 
 export const db = getFirestore(app);

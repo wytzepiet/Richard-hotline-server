@@ -3,6 +3,7 @@ import express, { Express, Request, Response, Application } from 'express';
 import dotenv from 'dotenv';
 import {v2 as cloudinary} from 'cloudinary';
 const DatauriParser = require('datauri/parser');
+import * as openpgp from 'openpgp';
 
 // Middleware
 import { rateLimit } from 'express-rate-limit' // Rate limiting
